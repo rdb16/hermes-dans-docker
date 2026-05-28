@@ -1,6 +1,9 @@
 # HERMES de 'Nous Reseach'
+
 C'est un projet open-source sérieux, bien maintenu, pas un truc obscur.
+
 ## Ce qu'est Hermes Agent
+
 Ce n'est pas un modèle, c'est un agent autonome auto-améliorant. Concrètement, c'est un assistant IA local qui :
 
 Tourne en boucle avec un LLM (celui que tu choisis — Gemma 4 est recommandé parce qu'il marche bien avec MLX sur Apple Silicon)
@@ -18,11 +21,7 @@ D'abord il a accès terminal —
 
 **il peut exécuter des commandes shell sur ton Mac.**
 
- C'est à ça qu'il doit sa puissance, mais ça veut dire qu'il peut en théorie installer des trucs, supprimer des fichiers, envoyer des requêtes réseau.
-
-  **Par défaut il y a un workflow d'approbation pour les commandes sensibles**
-
- , mais c'est à toi de rester vigilant.
+C'est à ça qu'il doit sa puissance, mais ça veut dire qu'il peut en théorie installer des trucs, supprimer des fichiers, envoyer des requêtes réseau. **Par défaut il y a un workflow d'approbation pour les commandes sensibles**, mais c'est à toi de rester vigilant.
 Ensuite il a accès au système de fichiers (lecture/écriture). Utile pour travailler sur tes documents, mais ça veut dire qu'il voit ce qu'il y a dans les dossiers qu'il parcourt.
 Le navigateur via Playwright ouvre une session isolée par défaut (pas ton Chrome perso), donc pas d'accès automatique à tes comptes bancaires ou autres. Mais si tu configures des logins persistants, attention.
 Le cron/scheduler signifie qu'il peut tourner en arrière-plan à heures fixes — assure-toi de savoir ce qu'il exécute.
@@ -37,7 +36,7 @@ Activer le mode « command approval » pour que chaque commande shell te soit so
 Gemma 4 recommandé — pas de risque particulier
 Gemma 4 est un modèle ouvert de Google, qui tourne 100% local via Ollama/MLX. Aucune donnée ne sort de ton Mac côté modèle. Le « risque » associé au choix du modèle est juste : il faut assez de RAM unifiée (16 Go minimum pour les petites variantes, 32 Go pour les grosses sur MLX). Si ton Mac a 8 Go, choisis plutôt un modèle plus petit ou accepte qu'Ollama bascule sur Metal au lieu de MLX.
 TL;DR
-Outil légitime et puissant. Aucun risque de malware. Les risques viennent du fait que tu donnes à un agent autonome l'accès terminal et fichiers de ton Mac — donc commence avec le backend Docker ou le ** mode approbation activé ** , teste sur des tâches inoffensives, et n'active les intégrations messageries que quand tu en as vraiment besoin.
+Outil légitime et puissant. Aucun risque de malware. Les risques viennent du fait que tu donnes à un agent autonome l'accès terminal et fichiers de ton Mac — donc commence avec le backend Docker ou le **mode approbation activé**, teste sur des tâches inoffensives, et n'active les intégrations messageries que quand tu en as vraiment besoin.
 
 **Niveau 1** :
  où vivent les fichiers de l'outil
