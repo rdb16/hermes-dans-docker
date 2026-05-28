@@ -1,5 +1,5 @@
-#llama launch
- est une nouvelle sous-commande apparue récemment dans Ollama, qui sert à installer et lancer des « intégrations » officiellement référencées. Quand tu tapes ollama launch hermes, Ollama va chercher l'intégration Hermes Agent développée par Nous Research (la même équipe qui fait les modèles Hermes et Nous Hermes). C'est un projet open-source sérieux, bien maintenu, pas un truc obscur.
+#HERMES de 'Nous Reseach'
+C'est un projet open-source sérieux, bien maintenu, pas un truc obscur.
 ## Ce qu'est Hermes Agent
 Ce n'est pas un modèle, c'est un agent autonome auto-améliorant. Concrètement, c'est un assistant IA local qui :
 
