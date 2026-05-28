@@ -1,4 +1,4 @@
-#HERMES de 'Nous Reseach'
+# HERMES de 'Nous Reseach'
 C'est un projet open-source sérieux, bien maintenu, pas un truc obscur.
 ## Ce qu'est Hermes Agent
 Ce n'est pas un modèle, c'est un agent autonome auto-améliorant. Concrètement, c'est un assistant IA local qui :
