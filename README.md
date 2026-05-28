@@ -144,3 +144,38 @@ Si l'UUID s'affiche → fuite confirmée, refaire le fix ci-dessus.
 ```bash
 cp ~/.hermes/config.yaml ~/.hermes/config.yaml.bak.$(date +%Y%m%d)
 ```
+
+## 🖼️ Coller une capture d'écran dans le prompt — fix du 2026-05-28
+
+Hermes accepte les images collées directement dans le prompt (drag-and-drop dans la TUI, ou raccourci de collage). Deux bugs empêchaient ce flux de fonctionner et ont été corrigés sur `~/.hermes/hermes-agent` (commits `fb9064b5e` et `06fc360f8`, mergés sur `main`).
+
+### ⚠️ Prérequis non négociable
+
+**Cette fonctionnalité ne marche QU'AVEC un modèle multimodal (vision).** Avec un modèle texte-seul, l'image est soit ignorée, soit convertie en description textuelle par un appel auxiliaire — résultat dégradé.
+
+Modèles multimodaux recommandés selon le provider :
+
+- **Anthropic** : `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5`
+- **OpenAI** : `gpt-4o`, `gpt-4o-mini`, `gpt-5` series
+- **Google** : `gemini-2.5-pro`, `gemini-3-flash`
+- **Local (Ollama/MLX)** : `gemma-3` (les variantes texte-only ne fonctionneront pas)
+
+Vérifier le modèle courant avec `hermes model` avant de coller une image.
+
+### Les deux bugs corrigés
+
+1. **`cli.py:11764` — `TypeError: can only concatenate str (not "list") to str`** : quand une image était attachée, les préfixes système (voice prefix, model-switch note, skills-reload note) tentaient `str + message` alors que `message` était une liste multimodale. Crash systématique du thread `run_agent` à chaque image attachée juste après un `/model`.
+2. **`title_generator.py:48` — `HTTP 400: prompt is too long: 1245301 tokens > 1000000 maximum`** : la génération automatique de titre de session prenait `user_message[:500]` sur une liste, stringifiait le résultat et embarquait la data URL base64 complète de l'image (1MB+) dans le prompt envoyé au modèle auxiliaire. Une seule capture suffisait à dépasser la fenêtre de contexte de 1M tokens.
+
+### Validation rapide après mise à jour
+
+Dans la TUI, avec un modèle multimodal sélectionné :
+
+```text
+[coller une capture d'écran]
+Décris-moi cette image.
+```
+
+Sortie attendue : description correcte de l'image, **et** aucune trace de `TypeError` ou `prompt is too long` dans `~/.hermes/logs/agent.log`.
+
+Si l'agent répond mais qu'un warning `⚠ Auxiliary title generation failed` apparaît, c'est que le fix `title_generator.py` n'est pas appliqué — re-sync `~/.hermes/hermes-agent` sur `main`.
