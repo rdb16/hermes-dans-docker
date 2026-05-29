@@ -178,3 +178,79 @@ Décris-moi cette image.
 Sortie attendue : description correcte de l'image, **et** aucune trace de `TypeError` ou `prompt is too long` dans `~/.hermes/logs/agent.log`.
 
 Si l'agent répond mais qu'un warning `⚠ Auxiliary title generation failed` apparaît, c'est que le fix `title_generator.py` n'est pas appliqué — re-sync `~/.hermes/hermes-agent` sur `main`.
+
+## 📨 Veille blogdumoderateur → email sécurisé (pattern outbox)
+
+Feature ajoutée le 2026-05-29 : l'agent Hermes scrape les nouveaux articles
+de [blogdumoderateur.com](https://www.blogdumoderateur.com/) et le résumé
+part par email via Gmail, **sans jamais exposer les identifiants Gmail au
+conteneur** qui exécute du contenu web non fiable.
+
+### Principe — séparation des privilèges
+
+- L'**agent** (conteneur Docker) se contente de déposer un fichier `.txt`
+  dans `/workspace/outbox/` (écriture atomique `.part` → rename).
+- Un **service de confiance côté hôte** détient seul les credentials
+  Gmail, ramasse le fichier et l'envoie.
+
+Conséquence : même en cas d'injection de prompt via un blog piégé, le pire
+que l'agent puisse faire est d'écrire un fichier — il ne peut ni envoyer un
+mail arbitraire, ni voler le token, ni changer le destinataire.
+
+### Composants
+
+Hors du volume monté (donc inaltérables par le conteneur), dans `~/.hermes/`
+et **non versionnés** dans ce repo par sécurité :
+
+- `bin/gmail_outbox_sender.py` — envoi via l'API Gmail (scope `gmail.send`
+  uniquement), stdlib pure. Déclenché par launchd `com.hermes.outbox-sender`
+  (WatchPaths sur l'outbox + filet périodique).
+- `bin/gmail_oauth_bootstrap.py` — obtention unique du refresh token (à
+  lancer dans un vrai terminal). Client OAuth de type « Application de
+  bureau » obligatoire (sinon `redirect_uri_mismatch`).
+- `bin/run-veille.sh` — wrapper de lancement de l'agent.
+- `outbox-sender.conf` — destinataire/expéditeur fixes, quotas.
+
+Versionnés dans ce repo : `prompt-agent-hermes.txt`, `docs/outbox-email.md`.
+
+### Sécurité
+
+- Scope OAuth **`gmail.send`** seulement (aucune lecture de la boîte mail).
+- Secrets dans le **Trousseau macOS** (`account=hermes`), jamais sur disque
+  ni dans git.
+- **Destinataire figé côté hôte** (anti-exfiltration).
+- Contenu envoyé en **pièce jointe** (jamais interprété comme HTML), avec
+  plafond de taille et quota d'envois par jour.
+- `docker_forward_env` reste **vide** : aucun secret injecté dans le
+  conteneur.
+
+### Déduplication « depuis le dernier envoi »
+
+Le filtrage se fait **par URL d'article**, pas par date (l'agent, surtout en
+Haiku, ne filtre pas les dates de façon fiable) :
+
+- l'agent exclut les URLs déjà présentes dans
+  `/workspace/.veille/seen-urls.txt` ; s'il ne reste rien de neuf, il ne
+  dépose aucun fichier (donc aucun email) ;
+- après un envoi réussi, le sender ajoute les URLs du digest à
+  `~/.hermes/veille/sent-urls.txt`.
+
+### Lancement et nettoyage des conteneurs
+
+L'agent se lance via `~/.hermes/bin/run-veille.sh`, qui publie la liste de
+référence dans le volume, injecte la date du jour, puis lance l'agent.
+
+Hermes nomme chaque conteneur `hermes-<uuid>` (non configurable) et, en mode
+`container_persistent: true`, ne fait que l'**arrêter** → ils s'accumulent
+en `Exited`. Le wrapper supprime donc, en fin de run (via un `trap`),
+**uniquement** le conteneur créé par ce run — sans toucher à une éventuelle
+session `hermes chat` lancée en parallèle.
+
+### Installation (une seule fois)
+
+```bash
+python3 ~/.hermes/bin/gmail_oauth_bootstrap.py
+launchctl load ~/Library/LaunchAgents/com.hermes.outbox-sender.plist
+```
+
+Voir `docs/outbox-email.md` pour le détail complet.
