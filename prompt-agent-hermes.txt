@@ -1,0 +1,14 @@
+j'aimerais un agent qui aille sur https://www.blogdumoderateur.com/ avec un navigateur. En pièce jointe copie d'écran de la page. sur cette page il faut repérer les blogs datés du jour exemple : https://www.blogdumoderateur.com/youtube-detecte-desormais-videos-ia/. puis, pour chaque blog trouvé, aller sur cette url récupérer le contenu et le résumer.
+
+Écris le résumé dans le dossier /workspace/outbox/ (et non dans /tmp).
+Nomme le fichier blogdumoderateur-AAAA-MM-JJ.txt avec la date du jour.
+
+Écriture atomique obligatoire : écris d'abord sous un nom temporaire
+terminé par .part (ex. blogdumoderateur-AAAA-MM-JJ.txt.part), puis, une
+fois l'écriture entièrement terminée, renomme le fichier en .txt
+(mv ...txt.part ...txt). Cela garantit que le service d'envoi ne ramasse
+jamais un fichier à moitié écrit.
+
+N'envoie AUCUN email toi-même et ne manipule aucun identifiant : le simple
+dépôt du fichier .txt dans /workspace/outbox/ suffit. Un service de
+confiance côté hôte se charge de l'envoyer par email de façon sécurisée.
