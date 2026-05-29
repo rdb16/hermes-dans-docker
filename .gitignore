@@ -26,3 +26,10 @@ npm-debug.log*
 # Logs / temp
 *.log
 *.tmp
+
+# Hermes outbox — runtime handoff dir (transient files, may hold scraped data)
+outbox/**
+!outbox/
+!outbox/sent/
+!outbox/failed/
+!outbox/**/.keep
