@@ -33,3 +33,6 @@ outbox/**
 !outbox/sent/
 !outbox/failed/
 !outbox/**/.keep
+
+# Hermes veille — état de déduplication publié dans le volume (runtime)
+.veille/
