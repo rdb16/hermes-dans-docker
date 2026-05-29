@@ -219,7 +219,8 @@ Versionnés dans ce repo : `prompt-agent-hermes.txt`, `docs/outbox-email.md`.
 - Secrets dans le **Trousseau macOS** (`account=hermes`), jamais sur disque
   ni dans git.
 - **Destinataire figé côté hôte** (anti-exfiltration).
-- Contenu envoyé en **pièce jointe** (jamais interprété comme HTML), avec
+- Résumé placé dans le **corps du mail** en texte brut (jamais interprété
+  comme HTML ; option `ATTACH_FILE=true` pour joindre aussi le `.txt`), avec
   plafond de taille et quota d'envois par jour.
 - `docker_forward_env` reste **vide** : aucun secret injecté dans le
   conteneur.
