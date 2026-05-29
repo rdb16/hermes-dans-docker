@@ -38,7 +38,8 @@ ne peut donc pas les altérer pour détourner les credentials.
 - **Aucun secret sur disque** : `client_id`, `client_secret` et
   `refresh_token` sont dans le Trousseau macOS (`account=hermes`).
 - **Destinataire fixe** côté hôte : l'agent ne choisit pas le `To:`.
-- **Contenu = pièce jointe** : jamais interprété comme HTML.
+- **Contenu = corps du mail en texte brut** : jamais interprété comme HTML
+  (option `ATTACH_FILE=true` dans la conf pour joindre aussi le `.txt`).
 - **Plafonds** : taille de fichier (1 MiB) et quota d'envois/jour (20).
 - **`docker_forward_env: []`** doit rester vide : aucun secret injecté
   dans le conteneur.
